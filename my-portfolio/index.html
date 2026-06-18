@@ -1,0 +1,483 @@
+import os
+
+html = '''<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Muhammad Ahsan — AI Engineer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    :root{
+      --bg:#03060c;--s1:#070d1a;--s2:#0a1220;
+      --b0:rgba(255,255,255,.06);--br:rgba(255,42,42,.28);--bc:rgba(94,242,255,.14);
+      --red:#ff2a2a;--rg:rgba(255,42,42,.18);--cyan:#5ef2ff;
+      --txt:#eaf3ff;--dim:#7a95b8;
+      --mono:"JetBrains Mono",ui-monospace,monospace;
+      --sans:"Inter",system-ui,sans-serif;
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    html{scroll-behavior:smooth}
+    body{font-family:var(--sans);background:var(--bg);color:var(--txt);overflow-x:hidden;line-height:1.6;cursor:none}
+    ::-webkit-scrollbar{width:4px}
+    ::-webkit-scrollbar-track{background:var(--bg)}
+    ::-webkit-scrollbar-thumb{background:var(--red);border-radius:99px}
+    #cursor{position:fixed;pointer-events:none;z-index:9999;transform:translate(-50%,-50%)}
+    .cur-ring{width:32px;height:32px;border:1.5px solid var(--red);border-radius:50%;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);transition:width .18s,height .18s,opacity .18s;box-shadow:0 0 10px var(--rg)}
+    .cur-cross{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%)}
+    .cur-cross::before,.cur-cross::after{content:"";position:absolute;background:var(--red);box-shadow:0 0 6px var(--red)}
+    .cur-cross::before{width:14px;height:1.5px;top:0;left:-7px}
+    .cur-cross::after{width:1.5px;height:14px;top:-7px;left:0}
+    .cur-dot{width:4px;height:4px;background:var(--red);border-radius:50%;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);box-shadow:0 0 6px var(--red)}
+    #loader{position:fixed;inset:0;z-index:999;background:radial-gradient(ellipse at center,#081428,#020509 70%);display:flex;align-items:center;justify-content:center;transition:opacity .6s,visibility .6s}
+    #loader.out{opacity:0;visibility:hidden;pointer-events:none}
+    .boot{width:min(90vw,660px);border:1px solid var(--bc);background:rgba(6,12,24,.88);border-radius:20px;padding:28px 30px;font-family:var(--mono);font-size:.9rem}
+    .bl{color:#b8d8ff;margin-bottom:9px;opacity:0;transform:translateX(-8px);animation:bIn .35s forwards}
+    .bl .ok{color:var(--cyan);margin-right:8px}
+    .bl:nth-child(1){animation-delay:.1s}.bl:nth-child(2){animation-delay:.42s}
+    .bl:nth-child(3){animation-delay:.74s}.bl:nth-child(4){animation-delay:1.06s}
+    .bl:nth-child(5){animation-delay:1.38s}.bl:nth-child(6){animation-delay:1.7s}
+    @keyframes bIn{to{opacity:1;transform:translateX(0)}}
+    #bgCanvas{position:fixed;inset:0;z-index:-2;pointer-events:none;opacity:.4}
+    .scanlines{position:fixed;inset:0;z-index:-1;pointer-events:none;background:repeating-linear-gradient(to bottom,rgba(255,255,255,.016) 0,rgba(255,255,255,.016) 1px,transparent 2px,transparent 4px)}
+    nav{position:fixed;top:0;width:100%;z-index:50;background:rgba(3,6,12,.82);backdrop-filter:blur(14px);border-bottom:1px solid var(--b0)}
+    .nav-inner{max-width:1200px;margin:auto;padding:0 28px;height:62px;display:flex;align-items:center;justify-content:space-between}
+    .nav-logo{font-family:var(--mono);font-size:.82rem;color:var(--cyan);letter-spacing:.14em;display:flex;align-items:center;gap:9px}
+    .ndot{width:7px;height:7px;border-radius:50%;background:var(--red);box-shadow:0 0 8px var(--red);animation:pulse 2s ease-in-out infinite}
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+    .nav-links{display:flex;gap:20px;list-style:none;font-size:.88rem}
+    .nav-links a{color:var(--dim);text-decoration:none;transition:color .2s}
+    .nav-links a:hover{color:var(--txt)}
+    .wrap{max-width:1200px;margin:auto;padding:0 28px}
+    section{padding:100px 0}
+    #hero{min-height:100vh;padding-top:0;display:flex;align-items:center;position:relative;overflow:hidden}
+    .hero-bg{position:absolute;inset:0;z-index:0;background:linear-gradient(to bottom,rgba(3,6,12,.5) 0%,rgba(3,6,12,.72) 45%,rgba(3,6,12,.97) 100%)}
+    #heroBgImg{position:absolute;inset:0;z-index:-1;width:100%;height:100%;object-fit:cover;object-position:center top;filter:saturate(.72) brightness(.52)}
+    .hero-wrap{position:relative;z-index:2;max-width:1200px;margin:auto;padding:100px 28px 80px;display:grid;grid-template-columns:1fr .9fr;align-items:center;gap:56px}
+    .glitch{position:relative;display:inline-block}
+    .glitch::before,.glitch::after{content:attr(data-text);position:absolute;inset:0;opacity:.7}
+    .glitch::before{color:var(--cyan);clip-path:polygon(0 0,100% 0,100% 35%,0 35%);transform:translateX(-2px);animation:glitchA 4s infinite}
+    .glitch::after{color:var(--red);clip-path:polygon(0 65%,100% 65%,100% 100%,0 100%);transform:translateX(2px);animation:glitchB 4s infinite}
+    @keyframes glitchA{0%,90%,100%{transform:translateX(-2px)}92%{transform:translateX(3px) skewX(3deg)}94%{transform:translateX(-3px)}}
+    @keyframes glitchB{0%,90%,100%{transform:translateX(2px)}92%{transform:translateX(-3px) skewX(-3deg)}94%{transform:translateX(3px)}}
+    .status-badge{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--bc);background:rgba(94,242,255,.05);padding:8px 14px;border-radius:99px;font-family:var(--mono);font-size:.76rem;color:var(--cyan);margin-bottom:20px;letter-spacing:.1em}
+    h1{font-size:clamp(2.8rem,6.5vw,5.4rem);font-weight:800;line-height:.93;letter-spacing:-.02em;margin-bottom:18px}
+    h1 .acc{color:var(--red)}
+    .tagline{font-size:clamp(.96rem,2vw,1.18rem);color:#b8cfec;line-height:1.7;max-width:540px;margin-bottom:26px}
+    .hero-chips{display:flex;flex-wrap:wrap;gap:9px;margin-bottom:28px}
+    .chip{padding:8px 13px;border-radius:99px;border:1px solid var(--bc);background:rgba(94,242,255,.05);font-size:.83rem;color:#cce6ff}
+    .btn-row{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:22px}
+    .btn{padding:13px 18px;border-radius:13px;font-size:.92rem;font-weight:600;text-decoration:none;transition:transform .22s;display:inline-flex;align-items:center;gap:7px}
+    .btn:hover{transform:translateY(-3px)}
+    .btn-p{background:linear-gradient(135deg,rgba(255,42,42,.22),rgba(255,42,42,.08));border:1px solid var(--br);color:#ffd5d5;box-shadow:0 0 24px var(--rg)}
+    .btn-g{background:rgba(94,242,255,.05);border:1px solid var(--bc);color:#cbe8ff}
+    .kaggle-block{border:1px solid rgba(255,42,42,.2);background:rgba(255,42,42,.04);border-radius:16px;padding:18px 20px}
+    .kaggle-block .kb-title{font-family:var(--mono);font-size:.72rem;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);margin-bottom:12px}
+    .kaggle-ranks{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .kr{background:rgba(255,255,255,.03);border:1px solid var(--b0);border-radius:12px;padding:12px 14px}
+    .kr-label{font-size:.78rem;color:var(--dim);margin-bottom:4px}
+    .kr-num{font-family:var(--mono);font-size:1.18rem;color:#ffd5d5;font-weight:700}
+    .kr-sub{font-size:.76rem;color:var(--dim);margin-top:2px}
+    .frame-hud{border:1px solid var(--bc);border-radius:18px;overflow:hidden;background:rgba(7,13,26,.5);box-shadow:0 28px 70px rgba(0,0,0,.5)}
+    .frame-bar{display:flex;justify-content:space-between;align-items:center;padding:10px 15px;background:rgba(255,255,255,.03);border-bottom:1px solid var(--bc);font-family:var(--mono);font-size:.76rem;color:#8ab4d8;letter-spacing:.1em}
+    .frame-body{position:relative;overflow:hidden}
+    #heroPhoto{width:100%;display:block;max-height:520px;object-fit:cover;object-position:center top}
+    .sweep-line{position:absolute;left:0;width:100%;height:2px;background:linear-gradient(90deg,transparent,rgba(255,42,42,.65),transparent);box-shadow:0 0 14px rgba(255,42,42,.45);animation:sweepDown 3.5s linear infinite;pointer-events:none}
+    @keyframes sweepDown{0%{top:-2px;opacity:0}5%{opacity:1}95%{opacity:1}100%{top:100%;opacity:0}}
+    .fc{position:absolute;width:20px;height:20px;border-color:var(--red);border-style:solid;filter:drop-shadow(0 0 6px var(--red));pointer-events:none}
+    .fc.tl{top:10px;left:10px;border-width:2px 0 0 2px}
+    .fc.tr{top:10px;right:10px;border-width:2px 2px 0 0}
+    .fc.bl{bottom:10px;left:10px;border-width:0 0 2px 2px}
+    .fc.br{bottom:10px;right:10px;border-width:0 2px 2px 0}
+    .frame-footer{padding:12px 15px;font-family:var(--mono);font-size:.77rem;color:#7a9ab8;display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px}
+    .frame-footer .f-red{color:#ff9d9d}
+    .sec-label{font-family:var(--mono);font-size:.76rem;color:var(--cyan);letter-spacing:.22em;text-transform:uppercase;margin-bottom:11px}
+    h2{font-size:clamp(1.9rem,4vw,3rem);font-weight:800;line-height:1.05;letter-spacing:-.02em;margin-bottom:12px}
+    .sec-sub{color:var(--dim);font-size:1rem;max-width:620px;line-height:1.75;margin-bottom:38px}
+    .divider{border:none;height:1px;background:linear-gradient(90deg,transparent,var(--bc),transparent);margin:0}
+    .scan-head{position:relative;display:inline-block;overflow:hidden}
+    .scan-head::after{content:"";position:absolute;left:-100%;top:0;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,42,42,.1),transparent);transition:none}
+    .scan-head.scanned::after{left:200%;transition:left .9s ease}
+    .proj-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:18px}
+    .pc{position:relative;background:linear-gradient(155deg,var(--s2),var(--s1));border:1px solid var(--bc);border-radius:20px;overflow:hidden;transition:transform .25s,border-color .25s,box-shadow .25s}
+    .pc::after{content:"";position:absolute;inset:0;background:linear-gradient(120deg,transparent 30%,rgba(255,255,255,.045) 50%,transparent 70%);transform:translateX(-120%);transition:transform .7s;pointer-events:none}
+    .pc:hover{transform:translateY(-5px);border-color:rgba(255,42,42,.3);box-shadow:0 20px 50px rgba(0,0,0,.32)}
+    .pc:hover::after{transform:translateX(120%)}
+    .sc{position:absolute;width:16px;height:16px;border-color:var(--red);border-style:solid;opacity:0;transition:opacity .35s;pointer-events:none;z-index:2}
+    .pc:hover .sc{opacity:1}
+    .sc.tl{top:10px;left:10px;border-width:2px 0 0 2px}
+    .sc.tr{top:10px;right:10px;border-width:2px 2px 0 0}
+    .sc.bl{bottom:10px;left:10px;border-width:0 0 2px 2px}
+    .sc.br{bottom:10px;right:10px;border-width:0 2px 2px 0}
+    .p-img{width:100%;height:160px;object-fit:cover;object-position:center top;display:block;border-bottom:1px solid var(--bc);background:var(--s1)}
+    .p-img-placeholder{width:100%;height:160px;background:linear-gradient(135deg,var(--s2),var(--s1));border-bottom:1px solid var(--bc);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:.8rem;color:var(--dim)}
+    .p-body{padding:18px}
+    .p-lbl{display:inline-block;font-family:var(--mono);font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:#ffcaca;border:1px solid var(--br);background:rgba(255,42,42,.08);padding:5px 10px;border-radius:99px;margin-bottom:10px}
+    .pc h3{font-size:1.04rem;margin-bottom:6px}
+    .pc p{color:var(--dim);font-size:.89rem;line-height:1.68;margin-bottom:10px}
+    .p-metric{font-family:var(--mono);font-size:.82rem;color:#a8ffd4;margin-bottom:10px;padding:7px 10px;background:rgba(94,255,180,.05);border:1px solid rgba(94,255,180,.12);border-radius:8px}
+    .p-tags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+    .p-tags span{font-size:.78rem;padding:5px 9px;border-radius:99px;border:1px solid var(--bc);background:rgba(94,242,255,.04);color:#cce8ff}
+    .p-links{display:flex;flex-wrap:wrap;gap:8px}
+    .pl{font-size:.8rem;padding:7px 11px;border-radius:9px;border:1px solid var(--b0);color:#a8c4e0;text-decoration:none;transition:border-color .2s,color .2s;font-family:var(--mono)}
+    .pl:hover{border-color:var(--bc);color:var(--cyan)}
+    .ds-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:13px}
+    .dc{background:var(--s1);border:1px solid var(--b0);border-radius:15px;padding:16px;transition:border-color .2s,transform .2s;text-decoration:none;display:block;color:inherit}
+    .dc:hover{border-color:var(--bc);transform:translateY(-3px)}
+    .d-dl{font-family:var(--mono);font-size:.78rem;color:var(--cyan);margin-bottom:6px}
+    .dc h4{font-size:.93rem;margin-bottom:4px;color:var(--txt)}
+    .dc p{color:var(--dim);font-size:.81rem;line-height:1.52}
+    .sk-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+    .sb{background:var(--s2);border:1px solid var(--bc);border-radius:20px;padding:22px}
+    .sb h3{font-family:var(--mono);font-size:.78rem;letter-spacing:.15em;color:var(--cyan);text-transform:uppercase;margin-bottom:18px}
+    .sk{margin-bottom:16px}.sk:last-child{margin-bottom:0}
+    .sk-row{display:flex;justify-content:space-between;font-size:.88rem;margin-bottom:6px}
+    .sk-pct{font-family:var(--mono);color:var(--dim)}
+    .bar{height:9px;border-radius:99px;background:rgba(255,255,255,.05);overflow:hidden}
+    .fill{height:100%;width:0;border-radius:99px;background:linear-gradient(90deg,var(--red),#ff8080 58%,var(--cyan));box-shadow:0 0 12px var(--rg);transition:width 1.3s cubic-bezier(.16,1,.3,1)}
+    .terminal{background:#060d19;border:1px solid var(--bc);border-radius:20px;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,.32);max-width:800px;margin:0 auto}
+    .t-bar{padding:11px 15px;background:rgba(255,255,255,.03);border-bottom:1px solid var(--b0);display:flex;gap:7px;align-items:center}
+    .dot{width:10px;height:10px;border-radius:50%}
+    .dot.r{background:#ff6a6a;box-shadow:0 0 7px rgba(255,106,106,.5)}.dot.y{background:#ffd06a}.dot.g{background:#69f0ae}
+    .t-body{padding:22px 26px;font-family:var(--mono);font-size:.91rem;line-height:2;color:#c8e0ff}
+    .t-body .pr{color:var(--cyan)}.t-body .ky{color:#ff9d9d}.t-body .vl{color:#a0c8f0}
+    .tcursor{display:inline-block;width:8px;height:1em;background:var(--cyan);vertical-align:text-bottom;animation:blink .9s step-end infinite}
+    @keyframes blink{50%{opacity:0}}
+    .reveal{opacity:0;transform:translateY(28px);transition:opacity .6s ease,transform .6s ease}
+    .reveal.in{opacity:1;transform:translateY(0)}
+    footer{text-align:center;padding:32px 28px;border-top:1px solid var(--b0);font-family:var(--mono);font-size:.8rem;color:var(--dim)}
+    @media(max-width:900px){
+      .hero-wrap{grid-template-columns:1fr;padding-top:110px}
+      .frame-hud{max-width:480px;margin:0 auto}
+      .sk-grid{grid-template-columns:1fr}
+      .kaggle-ranks{grid-template-columns:1fr 1fr}
+      .nav-links{display:none}
+    }
+    @media(max-width:580px){.wrap{padding:0 16px}h1{font-size:2.4rem}}
+  </style>
+</head>
+<body>
+
+<div id="cursor">
+  <div class="cur-ring"></div>
+  <div class="cur-cross"></div>
+  <div class="cur-dot"></div>
+</div>
+
+<div id="loader">
+  <div class="boot">
+    <div class="bl"><span class="ok">[BOOT]</span>Initializing vision interface...</div>
+    <div class="bl"><span class="ok">[SYS ]</span>Loading profile: Muhammad Ahsan</div>
+    <div class="bl"><span class="ok">[ML  ]</span>Models ready: YOLOv8s, ConvNeXt, EfficientNet</div>
+    <div class="bl"><span class="ok">[KGL ]</span>Kaggle Datasets rank: #11 of 10,181 worldwide</div>
+    <div class="bl"><span class="ok">[LOCK]</span>Identity confirmed. CONF 99.7%</div>
+    <div class="bl"><span class="ok">[RDY ]</span>System online. <span class="tcursor"></span></div>
+  </div>
+</div>
+
+<canvas id="bgCanvas"></canvas>
+<div class="scanlines"></div>
+
+<nav>
+  <div class="nav-inner">
+    <div class="nav-logo"><div class="ndot"></div>M.AHSAN // LIVE</div>
+    <ul class="nav-links">
+      <li><a href="#hero">Home</a></li>
+      <li><a href="#projects">Projects</a></li>
+      <li><a href="#datasets">Datasets</a></li>
+      <li><a href="#skills">Skills</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+  </div>
+</nav>
+
+<section id="hero">
+  <img id="heroBgImg" src="hero.jpg" alt="background"/>
+  <div class="hero-bg"></div>
+  <div class="hero-wrap">
+    <div class="reveal">
+      <div class="status-badge">
+        <span style="width:6px;height:6px;border-radius:50%;background:var(--red);box-shadow:0 0 7px var(--red);display:inline-block"></span>
+        DETECTION ACTIVE
+      </div>
+      <h1>
+        <span class="glitch" data-text="Muhammad">Muhammad</span><br>
+        <span class="acc glitch" data-text="Ahsan">Ahsan</span>
+      </h1>
+      <p class="tagline">Building AI systems that detect, classify and solve real problems.</p>
+      <div class="hero-chips">
+        <span class="chip">Computer Vision</span>
+        <span class="chip">Machine Learning</span>
+        <span class="chip">Deep Learning</span>
+        <span class="chip">YOLO Systems</span>
+      </div>
+      <div class="btn-row">
+        <a class="btn btn-p" href="#projects">Scan Projects</a>
+        <a class="btn btn-g" href="#contact">Open Terminal</a>
+        <a class="btn btn-g" href="https://github.com/Ahsan-Neural" target="_blank" rel="noopener">GitHub</a>
+        <a class="btn btn-g" href="https://www.kaggle.com/ahsanneural" target="_blank" rel="noopener">Kaggle</a>
+      </div>
+      <div class="kaggle-block">
+        <div class="kb-title">Kaggle Rankings</div>
+        <div class="kaggle-ranks">
+          <div class="kr">
+            <div class="kr-label">Datasets Grandmaster</div>
+            <div class="kr-num">Rank #11</div>
+            <div class="kr-sub">of 10,181 publishers worldwide</div>
+          </div>
+          <div class="kr">
+            <div class="kr-label">Notebooks Master</div>
+            <div class="kr-num">Rank #125</div>
+            <div class="kr-sub">of 62,341 notebooks worldwide</div>
+          </div>
+          <div class="kr">
+            <div class="kr-label">Medals: Datasets</div>
+            <div class="kr-num" style="color:#ffd700">8 Gold</div>
+            <div class="kr-sub">7 Silver, 1 Bronze</div>
+          </div>
+          <div class="kr">
+            <div class="kr-label">Medals: Notebooks</div>
+            <div class="kr-num" style="color:#c0c0c0">11 Silver</div>
+            <div class="kr-sub">18 Bronze</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="reveal">
+      <div class="frame-hud">
+        <div class="frame-bar">
+          <span>LIVE FEED: NYC TIMES SQ</span>
+          <span id="fps">FPS 29.4</span>
+        </div>
+        <div class="frame-body">
+          <img id="heroPhoto" src="hero.jpg" alt="Muhammad Ahsan detected"/>
+          <div class="sweep-line"></div>
+          <div class="fc tl"></div><div class="fc tr"></div>
+          <div class="fc bl"></div><div class="fc br"></div>
+        </div>
+        <div class="frame-footer">
+          <span>SUBJECT: MUHAMMAD AHSAN</span>
+          <span class="f-red">CONF 99.7% AUTHENTICATED</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider"/>
+
+<section id="projects">
+  <div class="wrap">
+    <div class="reveal">
+      <p class="sec-label">// Detected Projects</p>
+      <h2 class="scan-head">What I have built</h2>
+      <p class="sec-sub">Every project is trained, tested and deployed live. Real models, real metrics.</p>
+    </div>
+    <div class="proj-grid" id="projGrid"></div>
+  </div>
+</section>
+
+<hr class="divider"/>
+
+<section id="datasets">
+  <div class="wrap">
+    <div class="reveal">
+      <p class="sec-label">// Kaggle Datasets</p>
+      <h2 class="scan-head">Top downloaded datasets</h2>
+      <p class="sec-sub">24 datasets published on Kaggle. Showing the top 3 by download count.</p>
+    </div>
+    <div class="ds-grid reveal" id="dsGrid"></div>
+  </div>
+</section>
+
+<hr class="divider"/>
+
+<section id="skills">
+  <div class="wrap">
+    <div class="reveal">
+      <p class="sec-label">// Skill Scores</p>
+      <h2 class="scan-head">Skills and tools</h2>
+      <p class="sec-sub">Every skill here is demonstrated in a deployed project.</p>
+    </div>
+    <div class="sk-grid reveal skill-parent">
+      <div class="sb">
+        <h3>Computer Vision and AI</h3>
+        <div class="sk"><div class="sk-row"><span>YOLOv8 Object Detection</span><span class="sk-pct">96%</span></div><div class="bar"><div class="fill" data-w="96"></div></div></div>
+        <div class="sk"><div class="sk-row"><span>Python, PyTorch, TensorFlow</span><span class="sk-pct">94%</span></div><div class="bar"><div class="fill" data-w="94"></div></div></div>
+        <div class="sk"><div class="sk-row"><span>CNN, ConvNeXt, EfficientNet</span><span class="sk-pct">90%</span></div><div class="bar"><div class="fill" data-w="90"></div></div></div>
+        <div class="sk"><div class="sk-row"><span>OpenCV, Image Processing</span><span class="sk-pct">88%</span></div><div class="bar"><div class="fill" data-w="88"></div></div></div>
+      </div>
+      <div class="sb">
+        <h3>Machine Learning and Deployment</h3>
+        <div class="sk"><div class="sk-row"><span>Kaggle Notebooks and Datasets</span><span class="sk-pct">97%</span></div><div class="bar"><div class="fill" data-w="97"></div></div></div>
+        <div class="sk"><div class="sk-row"><span>Scikit-learn, XGBoost</span><span class="sk-pct">88%</span></div><div class="bar"><div class="fill" data-w="88"></div></div></div>
+        <div class="sk"><div class="sk-row"><span>Streamlit Deployment</span><span class="sk-pct">90%</span></div><div class="bar"><div class="fill" data-w="90"></div></div></div>
+        <div class="sk"><div class="sk-row"><span>Data Analysis and Visualization</span><span class="sk-pct">85%</span></div><div class="bar"><div class="fill" data-w="85"></div></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider"/>
+
+<section id="contact">
+  <div class="wrap">
+    <div class="reveal">
+      <p class="sec-label">// Communication Channel</p>
+      <h2 class="scan-head">Get in touch</h2>
+    </div>
+    <div class="terminal reveal">
+      <div class="t-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div></div>
+      <div class="t-body">
+        <div><span class="pr">visitor@ahsan:~$</span> whois muhammadahsan</div>
+        <div><span class="ky">name    </span><span class="vl">Muhammad Ahsan</span></div>
+        <div><span class="ky">role    </span><span class="vl">AI Engineer: Computer Vision, ML, Deep Learning</span></div>
+        <div><span class="ky">kaggle  </span><span class="vl">Datasets Grandmaster (Rank #11) and Notebooks Master (Rank #125)</span></div>
+        <div><span class="ky">location </span><span class="vl">Rahim Yar Khan, Punjab, Pakistan</span></div>
+        <br>
+        <div><span class="pr">visitor@ahsan:~$</span> cat contact.txt</div>
+        <div><span class="ky">email   </span><a href="mailto:ahsanatwork24@gmail.com" style="color:#a0c8f0;text-decoration:none">ahsanatwork24@gmail.com</a></div>
+        <div><span class="ky">linkedin </span><a href="https://www.linkedin.com/in/ahsanneural/" target="_blank" rel="noopener" style="color:#a0c8f0;text-decoration:none">linkedin.com/in/ahsanneural</a></div>
+        <div><span class="ky">github  </span><a href="https://github.com/Ahsan-Neural" target="_blank" rel="noopener" style="color:#a0c8f0;text-decoration:none">github.com/Ahsan-Neural</a></div>
+        <div><span class="ky">kaggle  </span><a href="https://www.kaggle.com/ahsanneural" target="_blank" rel="noopener" style="color:#a0c8f0;text-decoration:none">kaggle.com/ahsanneural</a></div>
+        <br>
+        <div><span class="pr">visitor@ahsan:~$</span> <span class="tcursor"></span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>Muhammad Ahsan &copy; 2026 &nbsp;|&nbsp; AI Engineer &nbsp;|&nbsp; Built with purpose, deployed on Vercel</footer>
+
+<script>
+const PROJECTS = [
+  {label:"INDUSTRIAL CV",title:"PCB Defect Detection",img:"pcb.jpg",
+   desc:"YOLOv8s trained on the DeepPCB benchmark. Detects 6 defect types in real time with a deployed Streamlit interface.",
+   metric:"mAP@50: 95.30%  |  Precision: 94.16%  |  Recall: 90.58%",
+   tags:["YOLOv8s","DeepPCB","Streamlit","Python"],
+   links:[{t:"GitHub",h:"https://github.com/Ahsan-Neural/pcb-defect-detection"},{t:"Live Demo",h:"https://ahsan-neural-pcb-defect-detection.streamlit.app/"}]},
+  {label:"INDUSTRIAL CV",title:"Steel Surface Defect Detection",img:"steel.jpg",
+   desc:"YOLOv8s trained on merged NEU-DET and GC10-DET datasets across 15 defect classes. Batch upload with per-image defect summary.",
+   metric:"mAP@50: 79.48%  |  Inference: 3.7ms per image",
+   tags:["YOLOv8s","NEU-DET","GC10-DET","Python"],
+   links:[{t:"GitHub",h:"https://github.com/Ahsan-Neural/steel-defect-vision"},{t:"Live Demo",h:"https://steel-defect-vision.streamlit.app/"}]},
+  {label:"SECURITY AI",title:"Weapon Detection",img:"weapon.jpg",
+   desc:"YOLOv8n real-time weapon detection. Detects knives, pistols and rifles from uploaded images or webcam snapshots.",
+   metric:"Classes: Knife, Pistol, Rifle  |  Stack: YOLOv8, OpenCV, TensorFlow",
+   tags:["YOLOv8n","OpenCV","TensorFlow","Streamlit"],
+   links:[{t:"GitHub",h:"https://github.com/Ahsan-Neural/weapon-detection-yolo"},{t:"Live Demo",h:"https://ahsan-weapon-detection.streamlit.app/"}]},
+  {label:"MACHINE LEARNING",title:"Crop Recommendation System",img:"crop.jpg",
+   desc:"ML model recommending optimal crops from soil NPK values, temperature, humidity and rainfall inputs.",
+   metric:"Model Accuracy: 99.3%",
+   tags:["Scikit-learn","Python","Streamlit","ML"],
+   links:[{t:"GitHub",h:"https://github.com/Ahsan-Neural/crop-recommendation-system"},{t:"Live Demo",h:"https://ahsan-crop-recommendation.streamlit.app/"}]},
+  {label:"DEEP LEARNING",title:"Cat vs Dog Classifier",img:"catdog.jpg",
+   desc:"CNN transfer learning classifier trained on the standard cat-vs-dog dataset. Reached 98.16% accuracy in just 3 training epochs.",
+   metric:"Accuracy: 98.16% in 3 epochs  |  Top prediction: 99.94% confidence",
+   tags:["CNN","Transfer Learning","Python","Kaggle"],
+   links:[{t:"Kaggle Notebook",h:"https://www.kaggle.com/code/ahsanneural/cat-vs-dog-image-classifier/notebook"}]},
+  {label:"CV: FESTIVAL AI",title:"Kite Detection (Basant Festival)",img:"kite.gif",
+   desc:"YOLOv8 model trained to detect kites in aerial footage from Pakistan's Basant festival. Custom dataset with full training pipeline.",
+   metric:"Custom dataset  |  YOLOv8  |  Video frame detection",
+   tags:["YOLOv8","Custom Dataset","Python","Kaggle"],
+   links:[{t:"Kaggle Notebook",h:"https://www.kaggle.com/code/ahsanneural/yolov8-kite-detection-basant-festival-analysis"}]},
+  {label:"ML RESEARCH",title:"SCARF vs Gradient Boosting",img:"scarf.jpg",
+   desc:"Contrastive learning comparison: SCARF self-supervised method benchmarked against Gradient Boosting on tabular data with t-SNE visualization.",
+   metric:"Contrastive Learning  |  t-SNE embeddings  |  Disease classification",
+   tags:["Contrastive Learning","XGBoost","scikit-learn","Kaggle"],
+   links:[{t:"Kaggle Notebook",h:"https://www.kaggle.com/code/ahsanneural/scarf-vs-gradient-boosting-contrastive-learning"}]},
+  {label:"UNSUPERVISED ML",title:"Customer Segmentation",img:"segment.jpg",
+   desc:"K-Means clustering for customer segmentation with full EDA, feature engineering and cluster interpretation.",
+   metric:"Algorithm: K-Means  |  Full EDA pipeline",
+   tags:["K-Means","scikit-learn","Python","Kaggle"],
+   links:[{t:"Kaggle Notebook",h:"https://www.kaggle.com/code/ahsanneural/customer-segmentation-with-k-means-clustering"}]}
+];
+
+const DATASETS = [
+  {dl:"2,365",title:"Global Food and Nutrition Database 2026",desc:"45,000+ food entries with nutrition facts, health scores and allergen data.",url:"https://www.kaggle.com/datasets/ahsanneural/global-food-and-nutrition-database-2026"},
+  {dl:"1,526",title:"Future Jobs and Skills Demand 2025",desc:"Job market forecasts and emerging skill demand data for the next decade.",url:"https://www.kaggle.com/datasets/ahsanneural/future-jobs-and-skills-demand-2025"},
+  {dl:"1,051",title:"Career Path Recommendations",desc:"Dataset for building career guidance and recommendation models.",url:"https://www.kaggle.com/datasets/ahsanneural/career-path-recommendations-dataset"}
+];
+
+document.getElementById("projGrid").innerHTML = PROJECTS.map(p=>`
+  <article class="pc reveal">
+    <div class="sc tl"></div><div class="sc tr"></div><div class="sc bl"></div><div class="sc br"></div>
+    <img class="p-img" src="${p.img}" alt="${p.title}" loading="lazy" onerror="this.style.display='none'"/>
+    <div class="p-body">
+      <div class="p-lbl">${p.label}</div>
+      <h3>${p.title}</h3>
+      <p>${p.desc}</p>
+      <div class="p-metric">${p.metric}</div>
+      <div class="p-tags">${p.tags.map(t=>`<span>${t}</span>`).join("")}</div>
+      <div class="p-links">${p.links.map(l=>`<a class="pl" href="${l.h}" target="_blank" rel="noopener">${l.t} &#8599;</a>`).join("")}</div>
+    </div>
+  </article>`).join("");
+
+document.getElementById("dsGrid").innerHTML = DATASETS.map(d=>`
+  <a class="dc reveal" href="${d.url}" target="_blank" rel="noopener">
+    <div class="d-dl">&#8595; ${d.dl} downloads</div>
+    <h4>${d.title}</h4>
+    <p>${d.desc}</p>
+  </a>`).join("");
+
+setTimeout(()=>document.getElementById("loader").classList.add("out"),2600);
+
+const cur=document.getElementById("cursor");
+const ring=cur.querySelector(".cur-ring");
+document.addEventListener("mousemove",e=>{cur.style.left=e.clientX+"px";cur.style.top=e.clientY+"px"});
+document.addEventListener("mousedown",()=>{ring.style.width="20px";ring.style.height="20px";ring.style.opacity=".5"});
+document.addEventListener("mouseup",()=>{ring.style.width="";ring.style.height="";ring.style.opacity=""});
+document.querySelectorAll("a,button,.pc,.dc").forEach(el=>{
+  el.addEventListener("mouseenter",()=>{ring.style.width="44px";ring.style.height="44px";ring.style.opacity=".38"});
+  el.addEventListener("mouseleave",()=>{ring.style.width="";ring.style.height="";ring.style.opacity=""});
+});
+
+const io=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add("in")})},{threshold:0.1});
+document.querySelectorAll(".reveal").forEach(el=>io.observe(el));
+
+new IntersectionObserver(entries=>{
+  entries.forEach(e=>{if(e.isIntersecting)e.target.querySelectorAll(".fill").forEach(f=>{f.style.width=f.dataset.w+"%"})});
+},{threshold:0.25}).observe(document.querySelector(".skill-parent"));
+
+document.querySelectorAll(".scan-head").forEach(h=>{
+  new IntersectionObserver(entries=>{
+    entries.forEach(e=>{if(e.isIntersecting){e.target.classList.remove("scanned");void e.target.offsetWidth;e.target.classList.add("scanned")}});
+  },{threshold:0.5}).observe(h);
+});
+
+setInterval(()=>{const el=document.getElementById("fps");if(el)el.textContent="FPS "+(27.5+Math.random()*3.5).toFixed(1)},1400);
+
+(function(){
+  const c=document.getElementById("bgCanvas"),ctx=c.getContext("2d");
+  let pts=[];
+  function resize(){
+    c.width=window.innerWidth;c.height=window.innerHeight;
+    pts=Array.from({length:38},()=>({x:Math.random()*c.width,y:Math.random()*c.height,vx:(Math.random()-.5)*.38,vy:(Math.random()-.5)*.38,r:Math.random()*1.6+.6}));
+  }
+  function draw(){
+    ctx.clearRect(0,0,c.width,c.height);
+    ctx.strokeStyle="rgba(94,242,255,.048)";ctx.lineWidth=1;
+    for(let x=0;x<c.width;x+=44){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,c.height);ctx.stroke()}
+    for(let y=0;y<c.height;y+=44){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(c.width,y);ctx.stroke()}
+    pts.forEach(p=>{
+      p.x+=p.vx;p.y+=p.vy;
+      if(p.x<0||p.x>c.width)p.vx*=-1;
+      if(p.y<0||p.y>c.height)p.vy*=-1;
+      ctx.beginPath();ctx.fillStyle="rgba(255,55,55,.6)";ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fill();
+    });
+    for(let i=0;i<pts.length;i++){
+      for(let j=i+1;j<pts.length;j++){
+        const dx=pts[i].x-pts[j].x,dy=pts[i].y-pts[j].y,d=Math.sqrt(dx*dx+dy*dy);
+        if(d<125){ctx.beginPath();ctx.strokeStyle=`rgba(94,242,255,${.1-d/1300})`;ctx.lineWidth=.7;ctx.moveTo(pts[i].x,pts[i].y);ctx.lineTo(pts[j].x,pts[j].y);ctx.stroke()}
+      }
+    }
+    requestAnimationFrame(draw);
+  }
+  resize();draw();window.addEventListener("resize",resize);
+})();
+</script>
+</body>
+</html>
+

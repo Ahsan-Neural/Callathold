@@ -127,14 +127,20 @@
     .d-dl{font-family:var(--mono);font-size:.78rem;color:var(--cyan);margin-bottom:6px}
     .dc h4{font-size:.93rem;margin-bottom:4px;color:var(--txt)}
     .dc p{color:var(--dim);font-size:.81rem;line-height:1.52}
-    .sk-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px}
-    .sb{background:var(--s2);border:1px solid var(--bc);border-radius:20px;padding:22px}
-    .sb h3{font-family:var(--mono);font-size:.78rem;letter-spacing:.15em;color:var(--cyan);text-transform:uppercase;margin-bottom:18px}
-    .sk{margin-bottom:16px}.sk:last-child{margin-bottom:0}
-    .sk-row{display:flex;justify-content:space-between;font-size:.88rem;margin-bottom:6px}
-    .sk-pct{font-family:var(--mono);color:var(--dim)}
-    .bar{height:9px;border-radius:99px;background:rgba(255,255,255,.05);overflow:hidden}
-    .fill{height:100%;width:0;border-radius:99px;background:linear-gradient(90deg,var(--red),#ff8080 58%,var(--cyan));box-shadow:0 0 12px var(--rg);transition:width 1.3s cubic-bezier(.16,1,.3,1)}
+
+    /* === SKILLS SECTION (updated) === */
+    .skill-cats{display:flex;flex-direction:column;gap:26px}
+    .skill-cat h3{font-family:var(--mono);font-size:.78rem;letter-spacing:.15em;color:var(--cyan);text-transform:uppercase;margin-bottom:14px}
+    .skill-tiles{display:flex;flex-wrap:wrap;gap:10px}
+    .tile{position:relative;padding:10px 16px;border-radius:10px;border:1px solid var(--bc);background:rgba(94,242,255,.04);font-family:var(--mono);font-size:.83rem;color:#cce6ff;transition:border-color .25s,background .25s,transform .25s}
+    .tile:hover{transform:translateY(-2px);border-color:var(--br);background:rgba(255,42,42,.06)}
+    .tile .tc{position:absolute;width:10px;height:10px;border-color:var(--red);border-style:solid;opacity:0;transition:opacity .25s;pointer-events:none}
+    .tile:hover .tc{opacity:1}
+    .tile .tc.tl{top:-1px;left:-1px;border-width:2px 0 0 2px}
+    .tile .tc.tr{top:-1px;right:-1px;border-width:2px 2px 0 0}
+    .tile .tc.bl{bottom:-1px;left:-1px;border-width:0 0 2px 2px}
+    .tile .tc.br{bottom:-1px;right:-1px;border-width:0 2px 2px 0}
+
     .terminal{background:#060d19;border:1px solid var(--bc);border-radius:20px;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,.32);max-width:800px;margin:0 auto}
     .t-bar{padding:11px 15px;background:rgba(255,255,255,.03);border-bottom:1px solid var(--b0);display:flex;gap:7px;align-items:center}
     .dot{width:10px;height:10px;border-radius:50%}
@@ -149,7 +155,6 @@
     @media(max-width:900px){
       .hero-wrap{grid-template-columns:1fr;padding-top:110px}
       .frame-hud{max-width:480px;margin:0 auto}
-      .sk-grid{grid-template-columns:1fr}
       .kaggle-ranks{grid-template-columns:1fr 1fr}
       .nav-links{display:none}
     }
@@ -295,24 +300,44 @@
 <section id="skills">
   <div class="wrap">
     <div class="reveal">
-      <p class="sec-label">// Skill Scores</p>
+      <p class="sec-label">// Detected Skills</p>
       <h2 class="scan-head">Skills and tools</h2>
-      <p class="sec-sub">Every skill here is demonstrated in a deployed project.</p>
+      <p class="sec-sub">Every tool listed here has been used in a real project or notebook — nothing here is a guess.</p>
     </div>
-    <div class="sk-grid reveal skill-parent">
-      <div class="sb">
-        <h3>Computer Vision and AI</h3>
-        <div class="sk"><div class="sk-row"><span>YOLOv8 Object Detection</span><span class="sk-pct">96%</span></div><div class="bar"><div class="fill" data-w="96"></div></div></div>
-        <div class="sk"><div class="sk-row"><span>Python, PyTorch, TensorFlow</span><span class="sk-pct">94%</span></div><div class="bar"><div class="fill" data-w="94"></div></div></div>
-        <div class="sk"><div class="sk-row"><span>CNN, ConvNeXt, EfficientNet</span><span class="sk-pct">90%</span></div><div class="bar"><div class="fill" data-w="90"></div></div></div>
-        <div class="sk"><div class="sk-row"><span>OpenCV, Image Processing</span><span class="sk-pct">88%</span></div><div class="bar"><div class="fill" data-w="88"></div></div></div>
+    <div class="skill-cats reveal skill-parent">
+      <div class="skill-cat">
+        <h3>Computer Vision &amp; AI</h3>
+        <div class="skill-tiles">
+          <span class="tile">Python<span class="tc tl"></span><span class="tc tr"></span><span class="tc bl"></span><span class="tc br"></span></span>
+          <span class="tile">PyTorch<span class="tc tl"></span><span class="tc tr"></span><span class="tc bl"></span><span class="tc br"></span></span>
+          <span class="tile">YOLOv8<span class="tc tl"></span><span class="tc tr"></span><span class="tc bl"></span><span class="tc br"></span></span>
+          <span class="tile">OpenCV<span class="tc tl"></span><span class="tc tr"></span><span class="tc bl"></span><span class="tc br"></span></span>
+          <span class="tile">CNN / Transformers / LSTM<span class="tc tl"></span><span class="tc tr"></span><span class="tc bl"></span><span class="tc br"></span></span>
+          <span class="tile">NLP (text classification, sentiment analysis)<span class="tc tl"></span><span class="tc tr"></span><span class="tc bl"></span><span class="tc br"></span></span>
+          <span class="tile">Scikit-learn<span class="tc tl"></span><span class="tc tr"></span><span class="tc bl"></span><span class="tc br"></span></span>
+        </div>
       </div>
-      <div class="sb">
-        <h3>Machine Learning and Deployment</h3>
-        <div class="sk"><div class="sk-row"><span>Kaggle Notebooks and Datasets</span><span class="sk-pct">97%</span></div><div class="bar"><div class="fill" data-w="97"></div></div></div>
-        <div class="sk"><div class="sk-row"><span>Scikit-learn, XGBoost</span><span class="sk-pct">88%</span></div><div class="bar"><div class="fill" data-w="88"></div></div></div>
-        <div class="sk"><div class="sk-row"><span>Streamlit Deployment</span><span class="sk-pct">90%</span></div><div class="bar"><div class="fill" data-w="90"></div></div></div>
-        <div class="sk"><div class="sk-row"><span>Data Analysis and Visualization</span><span class="sk-pct">85%</span></div><div class="bar"><div class="fill" data-w="85"></div></div></div>
+      <div class="skill-cat">
+        <h3>Full-Stack Development</h3>
+        <div class="skill-tiles">
+          <span class="tile">React<span class="tc tl"></span><span class="tc tr"></span><span class="tc bl"></span><span class="tc br"></span></span>
+          <span class="tile">Vite<span class="tc tl"></span><span class="tc tr"></span><span class="tc bl"></span><span class="tc br"></span></span>
+          <span class="tile">Tailwind CSS<span class="tc tl"></span><span class="tc tr"></span><span class="tc bl"></span><span class="tc br"></span></span>
+          <span class="tile">FastAPI<span class="tc tl"></span><span class="tc tr"></span><span class="tc bl"></span><span class="tc br"></span></span>
+          <span class="tile">PostgreSQL<span class="tc tl"></span><span class="tc tr"></span><span class="tc bl"></span><span class="tc br"></span></span>
+          <span class="tile">C# / .NET Framework<span class="tc tl"></span><span class="tc tr"></span><span class="tc bl"></span><span class="tc br"></span></span>
+        </div>
+      </div>
+      <div class="skill-cat">
+        <h3>Tools &amp; Deployment</h3>
+        <div class="skill-tiles">
+          <span class="tile">Docker<span class="tc tl"></span><span class="tc tr"></span><span class="tc bl"></span><span class="tc br"></span></span>
+          <span class="tile">Vercel<span class="tc tl"></span><span class="tc tr"></span><span class="tc bl"></span><span class="tc br"></span></span>
+          <span class="tile">Render<span class="tc tl"></span><span class="tc tr"></span><span class="tc bl"></span><span class="tc br"></span></span>
+          <span class="tile">Streamlit<span class="tc tl"></span><span class="tc tr"></span><span class="tc bl"></span><span class="tc br"></span></span>
+          <span class="tile">Git / GitHub<span class="tc tl"></span><span class="tc tr"></span><span class="tc bl"></span><span class="tc br"></span></span>
+          <span class="tile">Kaggle<span class="tc tl"></span><span class="tc tr"></span><span class="tc bl"></span><span class="tc br"></span></span>
+        </div>
       </div>
     </div>
   </div>
@@ -435,10 +460,6 @@ document.querySelectorAll("a,button,.pc,.dc").forEach(el=>{
 const io=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add("in")})},{threshold:0.1});
 document.querySelectorAll(".reveal").forEach(el=>io.observe(el));
 
-new IntersectionObserver(entries=>{
-  entries.forEach(e=>{if(e.isIntersecting)e.target.querySelectorAll(".fill").forEach(f=>{f.style.width=f.dataset.w+"%"})});
-},{threshold:0.25}).observe(document.querySelector(".skill-parent"));
-
 document.querySelectorAll(".scan-head").forEach(h=>{
   new IntersectionObserver(entries=>{
     entries.forEach(e=>{if(e.isIntersecting){e.target.classList.remove("scanned");void e.target.offsetWidth;e.target.classList.add("scanned")}});
@@ -478,4 +499,3 @@ setInterval(()=>{const el=document.getElementById("fps");if(el)el.textContent="F
 </script>
 </body>
 </html>
-
